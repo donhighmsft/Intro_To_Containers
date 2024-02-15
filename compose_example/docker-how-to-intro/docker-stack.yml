@@ -1,0 +1,57 @@
+# Add docker.local in your /etc/hosts config file
+version: "3.8"
+services:
+
+  nginx:
+    image: docker.local:5000/nginx:1.0
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+    - 80:80
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role != manager]
+  
+  client:
+    image: docker.local:5000/client:1.0
+    container_name: client
+    restart: unless-stopped
+    deploy: 
+      replicas: 5
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role != manager]
+
+  api:
+    image: docker.local:5000/api:1.0
+    container_name: server
+    restart: unless-stopped
+    deploy: 
+      replicas: 5
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role != manager]
+
+  mongodb:
+    image: mongo:7.0
+    container_name: database
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pZ5FbOZ50GkZ
+    volumes:
+      - mongodb:/data/db
+    deploy:
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role != manager]
+
+volumes:
+  mongodb:
+    driver: local

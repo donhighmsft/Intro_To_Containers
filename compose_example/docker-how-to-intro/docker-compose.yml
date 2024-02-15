@@ -1,0 +1,55 @@
+version: "3.8"
+services:
+
+  nginx:
+    image: nginx
+    build:
+      context: nginx
+      dockerfile: ./Dockerfile
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+    - 80:80
+    networks:
+    - dockerForDevelopers
+  
+  client:
+    image: client
+    build:
+        context: client
+        dockerfile: ./Dockerfile
+    container_name: client
+    restart: unless-stopped
+    networks: 
+      - dockerForDevelopers
+
+  api:
+    image: api
+    build:
+        context: api
+        dockerfile: ./Dockerfile
+    container_name: server
+    restart: unless-stopped
+    networks: 
+      - dockerForDevelopers
+
+  mongodb:
+    image: mongo:7.0
+    container_name: database
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pZ5FbOZ50GkZ
+    volumes:
+      - mongodb:/data/db
+    networks:  
+      - dockerForDevelopers
+
+volumes:
+  mongodb:
+    driver: local
+
+networks:
+  dockerForDevelopers:
+    name: dockerForDevelopers
+    driver: bridge
